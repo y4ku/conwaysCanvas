@@ -22,7 +22,7 @@ Grid.prototype.init = function() {
 	for(var rows = 0; rows < this.numRows; rows++) {
 		this.dwellers.push([]);
 		for(var columns = 0; columns < this.numCols; columns++) {			
-			this.ctx.strokeRect(x,y,this.cellWidth,this.cellHeight);			
+			//this.ctx.strokeRect(x,y,this.cellWidth,this.cellHeight);			
 			
 			var baby = new Organism();
 			this.dwellers[rows].push(baby);
@@ -37,6 +37,11 @@ Grid.prototype.init = function() {
 		x = 0;
 		y = y + this.cellHeight;
 	}
+}
+
+Grid.prototype.resize = function() {
+	this.cellHeight = this.canvas.height / this.numRows;
+	this.cellWidth = this.canvas.width / this.numCols;	
 }
 
 Grid.prototype.countNeighbors = function() {
@@ -73,7 +78,7 @@ Grid.prototype.updateOrganisms = function() {
             } else if (currentOrganism.livingNeighbors <= 1 || currentOrganism.livingNeighbors >= 4) {
                 currentOrganism.isAlive = false;
                 this.ctx.clearRect(c*this.cellWidth, r*this.cellHeight, this.cellWidth, this.cellHeight);
-                this.ctx.strokeRect(c*this.cellWidth, r*this.cellHeight, this.cellWidth, this.cellHeight);
+                //this.ctx.strokeRect(c*this.cellWidth, r*this.cellHeight, this.cellWidth, this.cellHeight);
             }
 		}
 	}
@@ -93,10 +98,31 @@ Grid.prototype.isIndexValid = function(x, y) {
     return isIndexValid;
 }
 
-conwaysGrid = new Grid(20, 20, document.getElementById('conwaysCanvas'));
+var canvas = document.getElementById('conwaysCanvas'),
+    context = canvas.getContext('2d'),
+    conwaysGrid = null;
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+conwaysGrid = new Grid(25, 25, canvas);
 conwaysGrid.init();
 
 document.getElementById('startConways').addEventListener('click', function() {
 	//conwaysGrid.render();
 	setInterval(conwaysGrid.render.bind(conwaysGrid), 500);
 }, false);
+
+// resize the canvas to fill browser window dynamically
+window.addEventListener('resize', resizeCanvas, false);
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    /**
+     * Your drawings need to be inside this function otherwise they will be reset when
+     * you resize the browser window and the canvas goes will be cleared.
+     */
+    conwaysGrid.resize();
+}
